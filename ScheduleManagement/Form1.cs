@@ -12,6 +12,7 @@ using System.Data.SqlClient;
 
 namespace ScheduleManagement
 {
+
     public partial class MainForm : Form
     {
         public MainForm()
@@ -52,30 +53,58 @@ namespace ScheduleManagement
             bool needInfo = true;
             string content = "";
             string dateTime = "";
+            int needInfoInt = 0;
             title = (string)textBox1.Text.Trim();
             date = (string)dateTimePicker2.Text;
             time = (string)dateTimePicker1.Text;
             needInfo = (bool)checkBox1.Checked;
-            content = (string)richTextBox1.Text;
-            dateTime = date + " " + time + ":00";
+            content = (string)richTextBox1.Text.Trim();
+            dateTime = date + " " + time;
             DateTime dateTimeInformat = DateTime.Parse(dateTime);
-            string dataTimeInString = dateTimeInformat.ToString(); // 格式化日期为字符串
-            Text = date + title + time + needInfo + content;
+            string dateTimeInString = dateTimeInformat.ToString("yyyy-MM-dd HH:mm"); // 格式化日期为字符串
+
             if (title == "")
             {
                 MessageBox.Show("事件标题不能为空", "错误");
             }
             else
             {
-                listBox1.Items.Add(title);
+                if (needInfo)
+                {
+                    needInfoInt = 1; // 将是否需要通知转换为 int 
+                }
+                string sqlInsert = "insert into scheduleitem (event, time, remind, content) values ('" + title + "', '" + dateTimeInString + "', '" + needInfoInt + "', '" + content + "')";
+                string sqlFindSameTime = "select * from scheduleitem where time = '" + dateTimeInString + "'";
                 SqlConnection conn = new SqlConnection();
                 string connStr = "server=127.0.0.1;user=sa;password=sqlserver;database=schedule";
                 conn.ConnectionString = connStr;
                 conn.Open();
                 if (conn.State == ConnectionState.Open)
                 {
-                    Text = dateTime;
+                    int existItemCount = 0;
+                    DataSet dataSetItem = new DataSet();
+                    SqlDataAdapter adapter = new SqlDataAdapter(sqlFindSameTime, conn);
+                    adapter.TableMappings.Add("Table", "scheduleitem");
+                    adapter.Fill(dataSetItem);
+                    existItemCount = dataSetItem.Tables["scheduleitem"].Rows.Count;
+                    
+                    if (existItemCount > 0)
+                    {
+                        MessageBox.Show("此时刻已有事件", "错误");
+                    }
+                    else
+                    {
+                        SqlCommand insert = new SqlCommand();
+                        insert.Connection = conn;
+                        insert.CommandType = CommandType.Text;
+                        insert.CommandText = sqlInsert;
+                        SqlDataReader insertReader = insert.ExecuteReader();
+                        insertReader.Close();
+                        listBox1.Items.Add(title);
+                    }
+                    SqlCommand findSameTime = new SqlCommand();
                 }
+
                 else
                     Text = "失败了";
             }
