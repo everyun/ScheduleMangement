@@ -102,7 +102,6 @@ namespace ScheduleManagement
                         insertReader.Close();
                         listBox1.Items.Add(title);
                     }
-                    SqlCommand findSameTime = new SqlCommand();
                 }
 
                 else
@@ -116,7 +115,29 @@ namespace ScheduleManagement
             int listIndex = listBox1.SelectedIndex;
             if (listIndex >= 0)
             {
+                SqlConnection conn = new SqlConnection();
+                string connStr = "server=127.0.0.1;user=sa;password=sqlserver;database=schedule";
+                conn.ConnectionString = connStr;
+                conn.Open();
                 int selIndex = listBox1.SelectedIndex;
+                string date = "";
+                string time = "";
+                string title = "";
+                date = (string)dateTimePicker2.Text;
+                time = (string)dateTimePicker1.Text;
+                title = (string)listBox1.SelectedItem.ToString();
+                string dateTime = date + " " + time;
+                DateTime dateTimeInformat = DateTime.Parse(dateTime);
+                string dateTimeInString = dateTimeInformat.ToString("yyyy-MM-dd HH:mm");
+                string sqlselectitem = "delete from scheduleitem where time='" + dateTimeInString + "' and event = '" + title + "'";
+                
+                SqlCommand delete = new SqlCommand();
+                delete.Connection = conn;
+                delete.CommandType = CommandType.Text;
+                delete.CommandText = sqlselectitem;
+                SqlDataReader insertReader = delete.ExecuteReader();
+                insertReader.Close();
+
                 listBox1.Items.RemoveAt(selIndex);
                 if (selIndex != 0)
                     listBox1.SetSelected(selIndex - 1, true);
