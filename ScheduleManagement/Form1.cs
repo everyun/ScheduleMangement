@@ -51,11 +51,15 @@ namespace ScheduleManagement
             string time = "";
             bool needInfo = true;
             string content = "";
+            string dateTime = "";
             title = (string)textBox1.Text.Trim();
             date = (string)dateTimePicker2.Text;
             time = (string)dateTimePicker1.Text;
             needInfo = (bool)checkBox1.Checked;
             content = (string)richTextBox1.Text;
+            dateTime = date + " " + time + ":00";
+            DateTime dateTimeInformat = DateTime.Parse(dateTime);
+            string dataTimeInString = dateTimeInformat.ToString(); // 格式化日期为字符串
             Text = date + title + time + needInfo + content;
             if (title == "")
             {
@@ -70,7 +74,7 @@ namespace ScheduleManagement
                 conn.Open();
                 if (conn.State == ConnectionState.Open)
                 {
-                    Text = "成功了";
+                    Text = dateTime;
                 }
                 else
                     Text = "失败了";
