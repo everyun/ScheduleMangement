@@ -46,28 +46,35 @@ namespace ScheduleManagement
 
         private void button3_Click(object sender, EventArgs e)
         {
-            string output = "";
+            string title = "";
             string date = "";
             string time = "";
             bool needInfo = true;
             string content = "";
-            output = (string)textBox1.Text;
+            title = (string)textBox1.Text.Trim();
             date = (string)dateTimePicker2.Text;
             time = (string)dateTimePicker1.Text;
             needInfo = (bool)checkBox1.Checked;
             content = (string)richTextBox1.Text;
-            Text = date + output + time + needInfo + content;
-            listBox1.Items.Add(output);
-            SqlConnection conn = new SqlConnection();
-            string connStr = "server=127.0.0.1;user=sa;password=sqlserver;database=schedule";
-            conn.ConnectionString = connStr;
-            conn.Open();
-            if (conn.State == ConnectionState.Open)
+            Text = date + title + time + needInfo + content;
+            if (title == "")
             {
-                Text = "成功了";
+                MessageBox.Show("事件标题不能为空", "错误");
             }
             else
-                Text = "失败了";
+            {
+                listBox1.Items.Add(title);
+                SqlConnection conn = new SqlConnection();
+                string connStr = "server=127.0.0.1;user=sa;password=sqlserver;database=schedule";
+                conn.ConnectionString = connStr;
+                conn.Open();
+                if (conn.State == ConnectionState.Open)
+                {
+                    Text = "成功了";
+                }
+                else
+                    Text = "失败了";
+            }
             
         }
 
