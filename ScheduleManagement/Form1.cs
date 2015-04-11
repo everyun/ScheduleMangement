@@ -78,7 +78,13 @@ namespace ScheduleManagement
                 SqlConnection conn = new SqlConnection();
                 string connStr = "server=127.0.0.1;user=sa;password=sqlserver;database=schedule";
                 conn.ConnectionString = connStr;
-                conn.Open();
+                try
+                {
+                    conn.Open();
+                }catch(Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "错误");
+                }
                 if (conn.State == ConnectionState.Open)
                 {
                     int existItemCount = 0;
