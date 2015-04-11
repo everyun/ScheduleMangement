@@ -105,7 +105,7 @@ namespace ScheduleManagement
                     needInfoInt = 1; // 将是否需要通知转换为 int 
                 }
                 string sqlInsert = "insert into scheduleitem (event, time, remind, content) values ('" + title + "', '" + dateTimeInString + "', '" + needInfoInt + "', '" + content + "')";
-                string sqlFindSameTime = "select * from scheduleitem where time = '" + dateTimeInString + "'";
+                string sqlFindSameTime = "select * from scheduleitem where time = '" + dateTimeInString + "' or event = '" + title + "'";
                 SqlConnection conn = new SqlConnection();
                 conn.ConnectionString = connStr;
                 try
@@ -126,7 +126,7 @@ namespace ScheduleManagement
                     
                     if (existItemCount > 0)
                     {
-                        MessageBox.Show("此时刻已有事件", "错误");
+                        MessageBox.Show("事件重复", "错误");
                     }
                     else
                     {
@@ -219,7 +219,44 @@ namespace ScheduleManagement
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-           
+            string itemText = listBox1.Text;
+            string date = dateTimePicker2.Text;
+            string sqlFindItemDetial = "select * from scheduleitem where time like '" + date + "%' and  event = '" + itemText + "'";
+
+            SqlConnection conn = new SqlConnection();
+            conn.ConnectionString = connStr;
+            try
+            {
+                conn.Open();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "错误");
+            }
+            if (conn.State == ConnectionState.Open)
+            {
+                DataSet dataSetItemDetails = new DataSet();
+                SqlDataAdapter adapter = new SqlDataAdapter(sqlFindItemDetial, conn);
+                adapter.TableMappings.Add("Table", "scheduleitem");
+                adapter.Fill(dataSetItemDetails);
+                DataRow dr = dataSetItemDetails.Tables[0].Rows[0];
+                string time = dr["time"].ToString();
+                int needInfo = (int)dr["remind"];
+                string content = dr["content"].ToString();
+                textBox1.Text = listBox1.Text;
+                dateTimePicker1.Value = DateTime.Parse(time);
+                if (needInfo == 1)
+                {
+                    checkBox1.CheckState = CheckState.Checked;
+                }
+                else
+                {
+                    checkBox1.CheckState = CheckState.Unchecked;
+                }
+                richTextBox1.Text = content;
+               
+
+            }
         }
     }
 }
