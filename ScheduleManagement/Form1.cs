@@ -15,6 +15,7 @@ namespace ScheduleManagement
 
     public partial class MainForm : Form
     {
+        public string connStr = "server=127.0.0.1;user=sa;password=sqlserver;database=schedule";
         public MainForm()
         {
             InitializeComponent();
@@ -22,12 +23,42 @@ namespace ScheduleManagement
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
         }
 
         private void dateTimePicker1_ValueChanged(object sender, EventArgs e)
         {
-  
+            string date = dateTimePicker2.Text;
+            string sqlSelectTodayEvent = "select event from scheduleitem where time like '" + date + "%'";
+            SqlConnection conn = new SqlConnection();
+            conn.ConnectionString = connStr;
+            try
+            {
+                conn.Open();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "错误");
+            }
+            if (conn.State == ConnectionState.Open)
+            {
+                DataSet dataSetTodayEvent = new DataSet();
+                SqlDataAdapter adapter = new SqlDataAdapter(sqlSelectTodayEvent, conn);
+                adapter.TableMappings.Add("Table", "scheduleitem");
+                adapter.Fill(dataSetTodayEvent);
+                for (int i = 0; i < listBox1.Items.Count; i++)
+                {
+                    listBox1.Items.RemoveAt(i);
+                }
+                foreach(DataRow dr in dataSetTodayEvent.Tables[0].Rows)
+                {
+                    listBox1.Items.Add(dr[0].ToString());
+                }
+                if(listBox1.Items.Count > 0)
+                {
+                    listBox1.SetSelected(0,true);
+                }
+            }
+
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -76,7 +107,6 @@ namespace ScheduleManagement
                 string sqlInsert = "insert into scheduleitem (event, time, remind, content) values ('" + title + "', '" + dateTimeInString + "', '" + needInfoInt + "', '" + content + "')";
                 string sqlFindSameTime = "select * from scheduleitem where time = '" + dateTimeInString + "'";
                 SqlConnection conn = new SqlConnection();
-                string connStr = "server=127.0.0.1;user=sa;password=sqlserver;database=schedule";
                 conn.ConnectionString = connStr;
                 try
                 {
@@ -122,7 +152,6 @@ namespace ScheduleManagement
             if (listIndex >= 0)
             {
                 SqlConnection conn = new SqlConnection();
-                string connStr = "server=127.0.0.1;user=sa;password=sqlserver;database=schedule";
                 conn.ConnectionString = connStr;
                 conn.Open();
                 int selIndex = listBox1.SelectedIndex;
@@ -186,6 +215,11 @@ namespace ScheduleManagement
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+           
         }
     }
 }
